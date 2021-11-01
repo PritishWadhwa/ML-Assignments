@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import AdaBoostClassifier
 plt.style.use('seaborn')
 plt.style.use('ggplot')
 plt.style.use('dark_background')
@@ -162,3 +163,114 @@ pred = np.array(predictions)
 y_ = []
 for i in range(len(pred[0])):
     y_.append(np.argmax(np.bincount(pred[:, i])))
+
+
+# task d
+maxDepths = [4, 8, 10, 15, 20, 30]
+
+
+# dictionaries to store the accuracies and predictions
+trainPreds = {}
+validPreds = {}
+testPreds = {}
+trainAccs = {}
+validAccs = {}
+testAccs = {}
+for dep in maxDepths:
+    trainPreds[dep] = []
+    validPreds[dep] = []
+    testPreds[dep] = []
+    trainAccs[dep] = []
+    validAccs[dep] = []
+    testAccs[dep] = []
+    for i in tqdm(range(100)):
+        # initializing the tree
+        decisionTreeRF = DecisionTreeClassifier(
+            criterion='entropy', max_depth=dep)
+        # generating the train and test data
+        trainDataRF, testDataRF = train_test_split(
+            trainData, trainSize=0.5, testSize=0.5, random_state=i+1)
+        trainDataRF_X = trainDataRF.drop(['month'], axis=1)
+        trainDataRF_y = trainDataRF['month']
+        testDataRF_X = testDataRF.drop(['month'], axis=1)
+        testDataRF_y = testDataRF['month']
+        # fitting the tree
+        decisionTreeRF.fit(trainDataRF_X, trainDataRF_y)
+        # predicting the train data, valid data and test data
+        trainPreds[dep].append(decisionTreeRF.predict(trainX))
+        validPreds[dep].append(decisionTreeRF.predict(validX))
+        testPreds[dep].append(decisionTreeRF.predict(testX))
+        # calculating the prediction by taking the majority vote
+        trainPred = np.array(trainPreds[dep])
+        y_train = []
+        for i in range(len(trainPred[0])):
+            y_train.append(np.argmax(np.bincount(trainPred[:, i])))
+        trainAccs[dep].append(calcAccuracy(y_train, trainY))
+        testPred = np.array(testPreds[dep])
+        y_test = []
+        for i in range(len(testPred[0])):
+            y_test.append(np.argmax(np.bincount(testPred[:, i])))
+        testAccs[dep].append(calcAccuracy(y_test, testY))
+        validPred = np.array(validPreds[dep])
+        y_valid = []
+        for i in range(len(validPred[0])):
+            y_valid.append(np.argmax(np.bincount(validPred[:, i])))
+        validAccs[dep].append(calcAccuracy(y_valid, validY))
+
+
+# plotting the curves and showing the relation between the accuracies, depths and number of trees on the training, testing and validation data
+color = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
+ctr = 0
+for i in maxDepths:
+    plt.plot(
+        trainAccs[i], label='Training Accuracy for depth ' + str(i), color=color[ctr])
+    plt.plot(validAccs[i], label='Validation Accuracy for depth ' +
+             str(i), color=color[ctr], linestyle='dashed')
+    plt.plot(testAccs[i], label='Testing Accuracy for depth ' +
+             str(i), color=color[ctr], linestyle='dotted')
+    ctr += 1
+plt.xlabel('number of trees')
+plt.ylabel('Accuracy')
+plt.title('Accuracy vs Number of Trees')
+plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.savefig('Plots/Ques1/partc.png')
+plt.show()
+
+
+# task e
+
+# initialising the number of estimators
+noOfEstimators = [4, 8, 10, 15, 20]
+
+
+# lists were created to save the accuracies
+adaTrainAccs = []
+adaTestAccs = []
+adaValidAccs = []
+for i in tqdm(range(len(noOfEstimators))):
+    # initializing the decision tree
+    dtForAda = DecisionTreeClassifier(criterion='entropy')
+    est = noOfEstimators[i]
+
+    # initializing the adaBoost
+    adaBoost = AdaBoostClassifier(base_estimator=dtForAda, n_estimators=est)
+
+    # fitting the adaBoost
+    adaBoost.fit(trainX, trainY)
+
+    # getting the accuracies on the training, testing and validation data
+    adaTrainAccs.append(adaBoost.score(trainX, trainY))
+    adaTestAccs.append(adaBoost.score(testX, testY))
+    adaValidAccs.append(adaBoost.score(validX, validY))
+
+
+# plotting the curve between the number of estimators and the accuracies for the adaboost
+plt.plot(noOfEstimators, adaTrainAccs, label='Training Accuracy', color='blue')
+plt.plot(noOfEstimators, adaTestAccs, label='Testing Accuracy', color='red')
+plt.plot(noOfEstimators, adaValidAccs,
+         label='Validation Accuracy', color='green')
+plt.xlabel('Number of Estimators')
+plt.ylabel('Accuracy')
+plt.title('Accuracy vs Number of Estimators')
+plt.legend()
+plt.show()
