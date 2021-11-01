@@ -613,3 +613,81 @@ accVsEpochPlot(trainAccs, validAccs, "softmax")
 
 # printing the testing accuracy
 print("Test Accuracy Softmaxs: {}".format(model.score(testX, testY)))
+
+
+# Task d
+def sklearnModel(trainX, trainY, validX, validY, testX, testY, activationFn):
+    """
+    This function is used to train the model using sklearn
+    trainX: training data
+    trainY: training labels
+    validX: validation data
+    validY: validation labels
+    testX: test data
+    testY: test labels
+    activationFn: activation function to be used
+    """
+    # initialising the model
+    model = MLPClassifier(hidden_layer_sizes=(256, 128, 64, 32), activation=activationFn,
+                          learning_rate_init=0.08, max_iter=150, batch_size=len(X)//10, verbose=True)
+    # fitting the model
+    model.fit(trainX, trainY)
+    # printing the accuracies
+    print("Test Accuracy {}: {}".format(
+        activationFn, model.score(testX, testY)))
+    print("Validation Accuracy {}: {}".format(
+        activationFn, model.score(validX, validY)))
+    print("Train Accuracy {}: {}".format(
+        activationFn, model.score(trainX, trainY)))
+
+
+# sklearn for ReLu
+sklearnModel(trainX, trainY, validX, validY, testX, testY, "relu")
+
+# sklearn for Sigmoid
+sklearnModel(trainX, trainY, validX, validY, testX, testY, "logistic")
+
+# sklearn for Linear
+sklearnModel(trainX, trainY, validX, validY, testX, testY, "identity")
+
+# sklearn for Tanh
+sklearnModel(trainX, trainY, validX, validY, testX, testY, "tanh")
+
+
+# Task e
+
+# learning_rate = 0.001, epochs = 100
+model = MyNeuralNetwork(N_inputs=784, N_outputs=10, N_layers=4, Layer_sizes=[
+                        256, 128, 64, 32], activation="tanh", learning_rate=0.001, weight_init="normal", num_epochs=100, batch_size=len(X)//10)
+trainLoss, validLoss, trainAccs, validAccs = model.fit(
+    trainX, trainY, validX=validX, validY=validY, logs=True)
+print("Train Accuracy Tanh: {}".format(model.score(trainX, trainY)))
+print("Test Accuracy Tanh: {}".format(model.score(testX, testY)))
+print("Validation Accuracy Tanh: {}".format(model.score(validX, validY)))
+
+# learning_rate = 0.01, epochs = 100
+model = MyNeuralNetwork(N_inputs=784, N_outputs=10, N_layers=4, Layer_sizes=[
+                        256, 128, 64, 32], activation="tanh", learning_rate=0.01, weight_init="normal", num_epochs=100, batch_size=len(X)//10)
+trainLoss, validLoss, trainAccs, validAccs = model.fit(
+    trainX, trainY, validX=validX, validY=validY, logs=True)
+print("Train Accuracy Tanh: {}".format(model.score(trainX, trainY)))
+print("Test Accuracy Tanh: {}".format(model.score(testX, testY)))
+print("Validation Accuracy Tanh: {}".format(model.score(validX, validY)))
+
+# learning_rate = 0.1, epochs = 100
+model = MyNeuralNetwork(N_inputs=784, N_outputs=10, N_layers=4, Layer_sizes=[
+                        256, 128, 64, 32], activation="tanh", learning_rate=0.1, weight_init="normal", num_epochs=100, batch_size=len(X)//10)
+trainLoss, validLoss, trainAccs, validAccs = model.fit(
+    trainX, trainY, validX=validX, validY=validY, logs=True)
+print("Train Accuracy Tanh: {}".format(model.score(trainX, trainY)))
+print("Test Accuracy Tanh: {}".format(model.score(testX, testY)))
+print("Validation Accuracy Tanh: {}".format(model.score(validX, validY)))
+
+# learning_rate = 1, epochs = 100
+model = MyNeuralNetwork(N_inputs=784, N_outputs=10, N_layers=4, Layer_sizes=[
+                        256, 128, 64, 32], activation="tanh", learning_rate=1, weight_init="normal", num_epochs=100, batch_size=len(X)//10)
+trainLoss, validLoss, trainAccs, validAccs = model.fit(
+    trainX, trainY, validX=validX, validY=validY, logs=True)
+print("Train Accuracy Tanh: {}".format(model.score(trainX, trainY)))
+print("Test Accuracy Tanh: {}".format(model.score(testX, testY)))
+print("Validation Accuracy Tanh: {}".format(model.score(validX, validY)))
